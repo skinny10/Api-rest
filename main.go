@@ -5,21 +5,15 @@ import (
 	"Server-fuertemex/domain/entities"
 	"Server-fuertemex/infrastructure"
 	"fmt"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-// MockRepository es una implementación de memoria para SensorRepository
+// ----- Mock Repositorio -----
 type MockRepository struct{}
 
-// Implementación de los métodos de la interfaz ports.SensorRepository
-func (m *MockRepository) SaveEventoCaja(event entities.EventoCaja) error {
-	fmt.Printf("Mock: Guardando evento de caja %v\n", event)
-	return nil
-}
-
 func (m *MockRepository) SaveMovimiento(mov entities.Movimiento) error {
-	fmt.Printf("Mock: Guardando movimiento %v\n", mov)
 	return nil
 }
 
@@ -28,11 +22,20 @@ func (m *MockRepository) SaveDistancia(dist entities.Distancia) error {
 	return nil
 }
 
-func main() {
-	// Crear un repositorio mock en lugar de MySQL
-	repo := &MockRepository{}
+func (m *MockRepository) GetAllMovimientos() ([]entities.Movimiento, error) {
+	return []entities.Movimiento{
+		{ID: 1, Descripcion: "Movimiento 1"},
+	}, nil
+}
 
-	// Crear el servicio usando el repositorio mock
+func (m *MockRepository) GetAllDistancias() ([]entities.Distancia, error) {
+	return []entities.Distancia{
+		{ID: 1, Valor: 123.45},
+	}, nil
+}
+
+func main() {
+	repo := &MockRepository{}
 	service := services.NewSensorService(repo)
 
 	// Iniciar RabbitMQ en una goroutine
@@ -40,6 +43,24 @@ func main() {
 
 	// Configurar la API REST
 	r := gin.Default()
-	infrastructure.RegisterRoutes(r, service)
+
+	r.GET("/movimientos", func(c *gin.Context) {
+		movimientos, err := service.GetAllMovimientos()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, movimientos)
+	})
+
+	r.GET("/distancias", func(c *gin.Context) {
+		distancias, err := service.GetAllDistancias()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, distancias)
+	})
+
 	r.Run(":8080")
 }

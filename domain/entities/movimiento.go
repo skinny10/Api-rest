@@ -1,7 +1,6 @@
 package entities
 
 type Movimiento struct {
-	ID     int
-	Estado string
-	Fecha  string
+	ID          int    `json:"id"`
+	Descripcion string `json:"descripcion"`
 }

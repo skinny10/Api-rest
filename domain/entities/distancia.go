@@ -1,8 +1,6 @@
 package entities
 
 type Distancia struct {
-	ID              int
-	DistanciaCM     float64
-	NivelProximidad string
-	Fecha           string
+	ID    int     `json:"id"`
+	Valor float64 `json:"valor"`
 }

@@ -1,26 +1,34 @@
 package services
 
-import (
-	"Server-fuertemex/domain/entities"
-	"Server-fuertemex/domain/ports"
-)
+import "Server-fuertemex/domain/entities"
+
+type SensorRepository interface {
+	SaveMovimiento(mov entities.Movimiento) error
+	SaveDistancia(dist entities.Distancia) error
+	GetAllMovimientos() ([]entities.Movimiento, error)
+	GetAllDistancias() ([]entities.Distancia, error)
+}
 
 type SensorService struct {
-	Repo ports.SensorRepository
+	repo SensorRepository
 }
 
-func NewSensorService(repo ports.SensorRepository) *SensorService {
-	return &SensorService{Repo: repo}
+func NewSensorService(r SensorRepository) *SensorService {
+	return &SensorService{repo: r}
 }
 
-func (s *SensorService) RegistrarEventoCaja(e entities.EventoCaja) error {
-	return s.Repo.SaveEventoCaja(e)
+func (s *SensorService) SaveMovimiento(mov entities.Movimiento) error {
+	return s.repo.SaveMovimiento(mov)
 }
 
-func (s *SensorService) RegistrarMovimiento(m entities.Movimiento) error {
-	return s.Repo.SaveMovimiento(m)
+func (s *SensorService) SaveDistancia(dist entities.Distancia) error {
+	return s.repo.SaveDistancia(dist)
 }
 
-func (s *SensorService) RegistrarDistancia(d entities.Distancia) error {
-	return s.Repo.SaveDistancia(d)
+func (s *SensorService) GetAllMovimientos() ([]entities.Movimiento, error) {
+	return s.repo.GetAllMovimientos()
+}
+
+func (s *SensorService) GetAllDistancias() ([]entities.Distancia, error) {
+	return s.repo.GetAllDistancias()
 }
